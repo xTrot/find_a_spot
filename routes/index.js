@@ -7,7 +7,17 @@ var router = express.Router();
 
 //                     Get Index Page
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Find-A-Spot' });
+});
+
+//                     Get Login Page
+router.get('/login', function(req, res, next) {
+  res.render('login', { title: 'Login' });
+});
+
+//                     Get Register Page
+router.get('/register', function(req, res, next) {
+  res.render('register', { title: 'Register' });
 });
 
 //                     Get Room JSON
@@ -46,6 +56,17 @@ router.post('/room?', function(err, req, res, next) {
       error: {}
     });
   }
+});
+
+//                     Post Login Page
+router.post('/login', function(req, res, next) {
+  res.render('login', { title: 'Login' });
+});
+
+
+//                     Post Register Page
+router.get('/register', function(req, res, next) {
+  res.render('register', { title: 'Register' });
 });
 
 //========================================================//
