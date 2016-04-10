@@ -33,6 +33,11 @@ router.post('/room?', function(err, req, res, next) {
     console.log("Body:"+req.body[0].rf_id+","+req.body[0].seats);
     console.log("Body:"+req.body[1].rf_id+","+req.body[1].seats);
     res.render('index', { title: 'Express' });
+    
+    req.body.forEach(function(element) {
+      
+    }, this);
+    
   }else{
     err.status = 404;
     res.status(err.status || 500);
