@@ -9,15 +9,15 @@ var connectionString = require(path.join(__dirname, '../', 'config'));
 // ------------------   Query Start   ----------------------
 
 var CHECK_USER =
-    "SELECT user_email FROM public.user" +
+    "SELECT user_email FROM public.users" +
     " WHERE user_email=$1";
     
 var NEW_USER =
-    "INSERT INTO public.user(user_email, user_pass)" +
+    "INSERT INTO public.users(user_email, user_pass)" +
     " VALUES($1, $2)";
     
 var USER_LOGIN = 
-    "SELECT user_email,user_pass FROM public.user"+
+    "SELECT user_email,user_pass FROM public.users"+
     " WHERE user_email=$1";
 
 
