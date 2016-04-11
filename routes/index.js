@@ -15,6 +15,11 @@ var CHECK_USER =
 var NEW_USER =
     "INSERT INTO public.user(user_email, user_pass)" +
     " VALUES($1, $2)";
+    
+var USER_LOGIN = 
+    "SELECT user_email,user_pass FROM public.user"+
+    " WHERE user_email=$1";
+
 
 // ------------------    Query End    ----------------------
 
@@ -76,10 +81,49 @@ router.post('/room?', function(err, req, res, next) {
 });
 
 //                     Post Login Page
-router.post('/login', function(req, res, next) {
-  res.render('login', { title: 'Login' });
-});
+router.post('/login', function(req, res) {
+    var results = [];
+    
+    // Grab data from http request
+    var data = {
+        email: req.body.email,
+        password: req.body.password
+    };
 
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+
+        // SQL Query > User Authentication
+        var query = client.query(USER_LOGIN, [data.email]);
+
+        // Stream results back one row at a time
+        query.on('row', function(row) {
+            results.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            done();
+            if (results[0]) {
+                if(bcrypt.compareSync(data.password, results[0].user_pass)){
+                    console.log("User: "+results[0].user_email+" Authenticated");
+                    req.session.user_email = results[0].user_email;
+                    res.redirect('/manage');
+                }else {
+                    res.redirect('/login?error=true');
+            }
+            }; 
+        });
+
+    });
+
+});
 
 //                     Post Register Page
 router.post('/register', function(req, res) {
