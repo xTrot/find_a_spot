@@ -1,6 +1,23 @@
 var express = require('express');
 var router = express.Router();
 
+var pg = require('pg');
+var path = require('path');
+var bcrypt = require('bcrypt');
+var connectionString = require(path.join(__dirname, '../', 'config'));
+
+// ------------------   Query Start   ----------------------
+
+var CHECK_USER =
+    "SELECT user_email FROM public.user" +
+    " WHERE user_email=$1";
+    
+var NEW_USER =
+    "INSERT INTO public.user(user_email, user_pass)" +
+    " VALUES($1, $2)";
+
+// ------------------    Query End    ----------------------
+
 //========================================================//
 //                       GETS START                       //
 //========================================================//
@@ -65,8 +82,60 @@ router.post('/login', function(req, res, next) {
 
 
 //                     Post Register Page
-router.get('/register', function(req, res, next) {
-  res.render('register', { title: 'Register' });
+router.post('/register', function(req, res) {
+    var salt = bcrypt.genSaltSync(10);
+    var hash = bcrypt.hashSync(req.body.password, salt);
+
+    // Grab data from http request
+    var data = {
+        email: req.body.email,
+        password: hash
+    };
+
+    console.log(data);
+
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+        
+        client.query(CHECK_USER, [data.email], function(err, result) {
+            
+            if(err) {
+                done();
+                console.log(err);
+                return res.status(500).json({success: false, data: err});
+            }
+            
+            console.log(result);
+            var tempUserID = result.rows[0];
+
+            console.log(tempUserID);
+            if(tempUserID){
+                res.redirect('/register?error=true');
+                done();
+                return;
+            }
+        });
+    });
+
+     pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+
+        client.query(NEW_USER, [data.email, data.password]);
+        res.redirect('/login');
+        done();
+        return;
+    });
 });
 
 //========================================================//
