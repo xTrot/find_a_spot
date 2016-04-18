@@ -50,6 +50,11 @@ router.get('/room?', function(req, res, next) {
   res.render('index', { title: 'Room JSON' });
 });
 
+router.get('/mymasters',function (req,res,next) {
+   
+   /////////////////////////////////////////////////////////////////////////////////////////////////////// 
+});
+
 //========================================================//
 //                       GETS END                         //
 //========================================================//
@@ -59,24 +64,22 @@ router.get('/room?', function(req, res, next) {
 //========================================================//
 
 //                  Post New Room Status
-router.post('/room?', function(err, req, res, next) {
-  if(req.query.room_id){
-    console.log("Post:"+req.query.room_id);
-    console.log("Body:"+req.body[0].rf_id+","+req.body[0].seats);
-    console.log("Body:"+req.body[1].rf_id+","+req.body[1].seats);
-    res.render('index', { title: 'Express' });
+router.post('/master?', function(req, res, next) {
+  console.log("Master_id:"+req.query.master_id);
+  if(req.query.master_id){
+    res.render('index', { title: 'Express' }); 
     
     req.body.forEach(function(element) {
-      
+      console.log("RF_ID:"+element.rf_id+", Seats:"+element.seats);
     }, this);
     
   }else{
-    err.status = 404;
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: {}
-    });
+//    err.status = 404;
+//    res.status(err.status || 500);
+//    res.render('error', {
+//      message: err.message,
+//      error: {}
+//    });
   }
 });
 
