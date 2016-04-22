@@ -19,6 +19,15 @@ var NEW_USER =
 var USER_LOGIN = 
     "SELECT user_email,user_pass FROM public.users"+
     " WHERE user_email=$1";
+    
+var UPDATE_MASTERS_START = 
+    "UPDATE public.masters"+
+    " SET last_edited=current_timestamp,"+
+    " seats = CASE slave_id ";
+    
+var UPDATE_MASTERS_END = 
+    " ELSE seats"+
+    " END";
 
 
 // ------------------    Query End    ----------------------
@@ -69,17 +78,30 @@ router.post('/master?', function(req, res, next) {
   if(req.query.master_id){
     res.render('index', { title: 'Express' }); 
     
-    req.body.forEach(function(element) {
-      console.log("RF_ID:"+element.rf_id+", Seats:"+element.seats);
-    }, this);
+   var cases = "";
+   
+   var rfs = "";
     
+    req.body.forEach(function(element) {
+        console.log("RF_ID:"+element.rf_id+", Seats:"+element.seats);
+        cases +=" WHEN '"+element.rf_id+"' THEN '"+element.seats+"'\n";
+        rfs +="'"+element.rf_id+"', ";
+    }, this);
+    rfs = rfs.substring(0,rfs.length-2);
+    var query_string = UPDATE_MASTERS_START + cases + UPDATE_MASTERS_END + " WHERE master_id=$1 AND slave_id IN("+rfs+");";
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+
+        // SQL Query > User Authentication
+        var query = client.query(query_string,[req.query.master_id]);
+    });
   }else{
-//    err.status = 404;
-//    res.status(err.status || 500);
-//    res.render('error', {
-//      message: err.message,
-//      error: {}
-//    });
+    res.redirect('/error');
   }
 });
 
