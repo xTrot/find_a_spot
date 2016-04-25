@@ -76,7 +76,6 @@ router.get('/mymasters',function (req,res,next) {
 router.post('/master?', function(req, res, next) {
   console.log("Master_id:"+req.query.master_id);
   if(req.query.master_id){
-    res.render('index', { title: 'Express' }); 
     
    var cases = "";
    
