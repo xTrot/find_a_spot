@@ -29,6 +29,35 @@ var UPDATE_MASTERS_END =
     " ELSE seats"+
     " END";
 
+var GET_MASTERS_DATA =
+    "SELECT slave_id,name,last_edited, seats FROM public.masters" +
+    " WHERE master_id=$1";
+ 
+//Check Attachment  
+    var CHECK_MASTER =
+    "SELECT user_email, master_id FROM public.manage" +
+    " WHERE user_email=$1 and master_id=$2";
+//  Attach User to Master ID
+var SET_MASTER_TO_USER =
+    "INSERT INTO public.manage(user_email, master_id)"+
+    " VALUES ($1,$2)";
+    
+//    Attach Master ID to Slaves
+var SET_MASTER_TO_SLAVES =
+    "INSERT INTO public.masters (slave_id,master_id,seats) VALUES" ;
+    
+//   Check Users Masters
+var CHECK_USER_MASTERS =
+    "SELECT "+
+    "FROM manage,masters ";
+    
+var REMOVE_MASTER_FROM_MASTERS = 
+"DELETE FROM public.masters" +
+" WHERE master_id=$1";
+
+var REMOVE_MASTER_FROM_MANAGE = 
+"DELETE FROM public.manage" +
+" WHERE master_id=$1";
 
 // ------------------    Query End    ----------------------
 
@@ -51,19 +80,97 @@ router.get('/register', function(req, res, next) {
   res.render('register', { title: 'Register' });
 });
 
-//                     Get Room JSON
-router.get('/room?', function(req, res, next) {
-  if(req.query.room_id){
-    console.log("Get:"+req.query.room_id);
+//                     Get Master JSON
+router.get('/master', function(req, res, next) {
+  if(req.query.master_id){
+    console.log("Get:"+req.query.master_id);
   }
-  res.render('index', { title: 'Room JSON' });
+  var json = { name:"",
+                    timestamp:null,
+                    slaves:[]
+        };
+  var results = []; 
+// Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        //console.log("\n\n** 1");
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({ success: false, data: err});
+        }
+
+        // SQL Query > Select Data
+        var query = client.query(GET_MASTERS_DATA,[req.query.master_id]);
+        console.log("Set the query.");
+        // Stream results back one row at a time
+        query.on('row', function(row) {
+            results.push(row);
+            console.log(row);
+            
+        });
+        
+        
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            done();
+            console.log(results);    
+        json.name = results[0].name;
+        json.timestamp = results[0].last_edited;
+        results.forEach(function(element) {
+            var temp = element.seats;
+            var bits = []; 
+        
+            //formatting integer to boolean
+            for ( i = 11; i >= 0; i--){
+            
+                //even number % 2 = 0
+                
+                if (temp % 2 == 0){
+                    bits[i] = false;
+                }
+                else{
+                    bits[i] = true;
+                }
+                
+                temp = temp >> 1;
+        console.log(temp);
+            }
+            
+                json.slaves.push(bits);
+            
+        });
+        return res.json(json);
+            });
+    });
+ });
+
+//                     Get Add Master
+router.get('/addmaster', function(req, res, next) {
+  if(req.query.master_id){
+          console.log("Get:"+req.query.master_id);
+  }
+  res.render('addmaster', { title: 'Add Master' });
 });
 
-router.get('/mymasters',function (req,res,next) {
-   
-   /////////////////////////////////////////////////////////////////////////////////////////////////////// 
+//                      Get Edit Master
+router.get('/editmaster', function(req, res, next) {
+  if(req.query.master_id){
+          console.log("Get:"+req.query.master_id);
+  }
+  res.render('editmaster', { title: 'Edit Master' });
 });
-
+        
+//                      Get Remove Master
+ router.get('/removemaster', function(req, res, next) {
+  if(req.query.master_id){
+          console.log("Get: "+req.query.master_id);
+  }
+  res.render('removemaster', { title: 'Remove Master' });
+});
+                    
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 //========================================================//
 //                       GETS END                         //
 //========================================================//
@@ -72,7 +179,7 @@ router.get('/mymasters',function (req,res,next) {
 //                      POSTS START                       //
 //========================================================//
 
-//                  Post New Room Status
+//                  Post New Master's Status
 router.post('/master?', function(req, res, next) {
   console.log("Master_id:"+req.query.master_id);
   if(req.query.master_id){
@@ -82,9 +189,9 @@ router.post('/master?', function(req, res, next) {
    var rfs = "";
     
     req.body.forEach(function(element) {
-        console.log("RF_ID:"+element.rf_id+", Seats:"+element.seats);
-        cases +=" WHEN '"+element.rf_id+"' THEN '"+element.seats+"'\n";
-        rfs +="'"+element.rf_id+"', ";
+        console.log("SLAVE_ID:"+element.slave_id+", Seats:"+element.seats);
+        cases +=" WHEN '"+element.slave_id+"' THEN '"+element.seats+"'\n";
+        rfs +="'"+element.slave_id+"', ";
     }, this);
     rfs = rfs.substring(0,rfs.length-2);
     var query_string = UPDATE_MASTERS_START + cases + UPDATE_MASTERS_END + " WHERE master_id=$1 AND slave_id IN("+rfs+");";
@@ -139,7 +246,7 @@ router.post('/login', function(req, res) {
                 if(bcrypt.compareSync(data.password, results[0].user_pass)){
                     console.log("User: "+results[0].user_email+" Authenticated");
                     req.session.user_email = results[0].user_email;
-                    res.redirect('/manage');
+                    res.redirect('/addmaster');
                 }else {
                     res.redirect('/login?error=true');
             }
@@ -207,6 +314,211 @@ router.post('/register', function(req, res) {
     });
 });
 
+
+//              Post Add Master Page
+router.post('/addmaster', function(req, res) {
+
+    // Grab data from http request
+    var data = {
+        master_id: req.body.master_id,
+        quantity: req.body.quantity
+    };
+
+    console.log(req.body);
+
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+        
+         client.query(CHECK_MASTER, [req.session.user_email,data.master_id], function(err, result) {
+            
+            if(err) {
+                done();
+                console.log(err);
+                return res.status(500).json({success: false, data: err});
+            }
+            
+            // console.log(result);
+            var tempUserID = result.rows[0];
+
+            console.log(tempUserID);
+            if(tempUserID){
+                res.redirect('/addmaster?error=true');
+                done();
+                return;
+            }
+        });
+    });
+
+     pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+
+        var query = client.query(SET_MASTER_TO_USER, [req.session.user_email, data.master_id]);
+      
+        var insert = SET_MASTER_TO_SLAVES;
+        // query.on('end',function() {
+            for(i =0; i < data.quantity; i++){
+             insert += " ('"+i+"','"+data.master_id+"','0')";
+             
+             if(i != data.quantity-1){
+                 insert+= ", ";
+                 
+                }
+
+            } 
+            client.query(insert);
+            console.log(insert);
+        
+        res.redirect('/login');
+        done();
+        return;
+    });
+});
+
+
+//                     Post Remove Master Page
+router.post('/removemaster', function(req, res) {
+    var results = [];
+
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+
+        // SQL Query > User Authentication
+       client.query(REMOVE_MASTER_FROM_MANAGE, [req.body.master_id]);
+
+        // Stream results back one row at a time
+        // query.on('row', function(row) {
+        //     results.push(row);
+        // });
+
+
+    });
+    
+       // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+
+        // SQL Query > User Authentication
+      var query= client.query(REMOVE_MASTER_FROM_MANAGE, [req.body.master_id]);
+
+        // Stream results back one row at a time
+        // query.on('row', function(row) {
+        //     results.push(row);
+        // });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            done();
+           return res.redirect("/");
+        });
+
+    });
+
+});
+
+
+
+//              Post Edit Master Page
+router.post('/editmaster', function(req, res) {
+
+    // Grab data from http request
+    var data = {
+        master_id: req.body.master_id,
+        quantity: req.body.quantity
+    };
+    console.log(req.body);
+
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+        
+         client.query(CHECK_MASTER, [req.session.user_email,data.master_id], function(err, result) {
+            
+            if(err) {
+                done();
+                console.log(err);
+                return res.status(500).json({success: false, data: err});
+            }
+            
+            // console.log(result);
+            var tempUserID = result.rows[0];
+
+            console.log(tempUserID);
+            if(!tempUserID){
+                res.redirect('/editmaster?error=true');
+                done();
+                return;
+            }
+        });
+    });
+
+     pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+
+         var query = client.query(REMOVE_MASTER_FROM_MASTERS, [data.master_id]);
+            done();
+    });
+    
+        pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+
+      
+        var insert = SET_MASTER_TO_SLAVES;
+        // query.on('end',function() {
+            for(i =0; i < data.quantity; i++){
+             insert += " ('"+i+"','"+data.master_id+"','0')";
+             
+             if(i != data.quantity-1){
+                 insert+= ", ";
+                 
+                }
+
+            } 
+            client.query(insert);
+            console.log(insert);
+        
+        res.redirect('/login');
+        done();
+        return;
+    }); 
+    
+});
 //========================================================//
 //                       POSTS END                        //
 //========================================================//

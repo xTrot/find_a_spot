@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{title}}</title>
+	</head>
+	<body>
+		<div class="navbar-wrapper">
+			<div class="container">
+				<nav class="navbar navbar-inverse navbar-fixed-top">
+					<div class="container">
+						<div class="navbar-header">
+							<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							</button>
+							<a class="navbar-brand" href="#">Find-A-Spot</a>
+						</div>
+						<div id="navbar" class="navbar-collapse collapse">
+							<ul class="nav navbar-nav">
+								<li class="active"><a href="#">Home</a></li>
+								<li><a href="#">About</a></li>
+								<li><a href="#">Contact</a></li>
+								<li class="dropdown">
+									<a href="http://getbootstrap.com/examples/carousel/#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+									<ul class="dropdown-menu">
+										<li><a href="http://getbootstrap.com/examples/carousel/#">Action</a></li>
+										<li><a href="http://getbootstrap.com/examples/carousel/#">Another action</a></li>
+										<li><a href="http://getbootstrap.com/examples/carousel/#">Something else here</a></li>
+										<li role="separator" class="divider"></li>
+										<li class="dropdown-header">Nav header</li>
+										<li><a href="http://getbootstrap.com/examples/carousel/#">Separated link</a></li>
+										<li><a href="http://getbootstrap.com/examples/carousel/#">One more separated link</a></li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</nav>
+			</div>
+		</div>
+		<!-- Marketing messaging and featurettes
+			================================================== -->
+		<!-- Wrap the rest of the page in another container to center all the content. -->
+		<div height="38px">
+			<h2>&nbsp;</h2>
+		</div>
+		<div class="container">
+			<div ng-controller="registerController" >
+				<div class="login-panel panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Needed Master Information </h3>
+					</div>
+					<div class="panel-body">
+						<form name="form" role="form" method="post" action="/removemaster" novalidation="">
+							<p class="text-warning"></p>
+							<p>Master ID (follow this format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx )</p>
+							<div ng-class="{ 'has-error': form.master_id.$invalid &amp;&amp; form.master_id.$dirty }" class="form-group">
+								<input placeholder="Master ID " name="master_id" type="text" ng-model="regData.master_id" required="" class="form-control">
+							</div>
+							<div ng-class="{ 'has-error': form.Cpassword.$invalid &amp;&amp; form.Cpassword.$dirty }" class="form-group">
+							</div>
+							<div class="form-group">
+								<input type="submit" value="Remove" class="btn btn-lg btn-danger">
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<hr class="featurette-divider">
+			<!-- FOOTER -->
+			<footer>
+				<p class="pull-right"><a href="#">Back to top</a></p>
+				<p>© 2015 Company, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a></p>
+			</footer>
+		</div>
+		<!-- /.container -->
+		<!-- Bootstrap core JavaScript
+			================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="/scripts/jquery.min.js"></script>
+		<!-- <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script> -->
+		<script src="/scripts/bootstrap.min.js"></script>
+		<!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+		<script src="/scripts/holder.min.js"></script>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="/scripts/ie10-viewport-bug-workaround.js"></script>
+
+	</body>
+</html>
