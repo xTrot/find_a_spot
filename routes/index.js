@@ -6,6 +6,16 @@ var path = require('path');
 var bcrypt = require('bcrypt');
 var connectionString = require(path.join(__dirname, '../', 'config'));
 
+//------- Athentication Function ---------
+function checkAuth(req, res, next) {
+    if (req.session.user_id) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
+
 // ------------------   Query Start   ----------------------
 
 var CHECK_USER =
@@ -147,7 +157,7 @@ router.get('/master', function(req, res, next) {
  });
 
 //                     Get Add Master
-router.get('/addmaster', function(req, res, next) {
+router.get('/addmaster', checkAuth, function(req, res, next) {
   if(req.query.master_id){
           console.log("Get:"+req.query.master_id);
   }
@@ -155,7 +165,7 @@ router.get('/addmaster', function(req, res, next) {
 });
 
 //                      Get Edit Master
-router.get('/editmaster', function(req, res, next) {
+router.get('/editmaster', checkAuth, function(req, res, next) {
   if(req.query.master_id){
           console.log("Get:"+req.query.master_id);
   }
@@ -163,7 +173,7 @@ router.get('/editmaster', function(req, res, next) {
 });
         
 //                      Get Remove Master
- router.get('/removemaster', function(req, res, next) {
+ router.get('/removemaster', checkAuth, function(req, res, next) {
   if(req.query.master_id){
           console.log("Get: "+req.query.master_id);
   }
@@ -316,7 +326,7 @@ router.post('/register', function(req, res) {
 
 
 //              Post Add Master Page
-router.post('/addmaster', function(req, res) {
+router.post('/addmaster', checkAuth, function(req, res) {
 
     // Grab data from http request
     var data = {
@@ -387,7 +397,7 @@ router.post('/addmaster', function(req, res) {
 
 
 //                     Post Remove Master Page
-router.post('/removemaster', function(req, res) {
+router.post('/removemaster', checkAuth, function(req, res) {
     var results = [];
 
     // Get a Postgres client from the connection pool
@@ -440,7 +450,7 @@ router.post('/removemaster', function(req, res) {
 
 
 //              Post Edit Master Page
-router.post('/editmaster', function(req, res) {
+router.post('/editmaster', checkAuth, function(req, res) {
 
     // Grab data from http request
     var data = {
