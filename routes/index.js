@@ -58,8 +58,8 @@ var SET_MASTER_TO_SLAVES =
     
 //   Check Users Masters
 var CHECK_USER_MASTERS =
-    "SELECT "+
-    "FROM manage,masters ";
+    "SELECT DISTINCT manage.master_id,name FROM manage NATURAL JOIN masters" +
+    "  WHERE user_email=$1";
     
 var REMOVE_MASTER_FROM_MASTERS = 
 "DELETE FROM public.masters" +
@@ -69,6 +69,7 @@ var REMOVE_MASTER_FROM_MANAGE =
 "DELETE FROM public.manage" +
 " WHERE master_id=$1";
 
+
 // ------------------    Query End    ----------------------
 
 //========================================================//
@@ -77,9 +78,25 @@ var REMOVE_MASTER_FROM_MANAGE =
 
 //                     Get Index Page
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Find-A-Spot' });
-});
+  
+        //GET     USER'S Master PAGE
 
+  if(req.session.user_email){
+      
+        res.render('masterlist', { title: 'Find-A-Spot' });
+        
+
+  }
+  // GET INDEX PAGE
+  else{      
+        res.render('index', { title: 'Find-A-Spot' });
+
+  }
+  
+  
+  
+  
+});
 //                     Get Login Page
 router.get('/login', function(req, res, next) {
   res.render('login', { title: 'Login' });
@@ -118,9 +135,7 @@ router.get('/master', function(req, res, next) {
             results.push(row);
             console.log(row);
             
-        });
-        
-        
+        });        
 
         // After all data is returned, close connection and return results
         query.on('end', function() {
@@ -178,6 +193,40 @@ router.get('/editmaster', checkAuth, function(req, res, next) {
           console.log("Get: "+req.query.master_id);
   }
   res.render('removemaster', { title: 'Remove Master' });
+});
+
+
+//          Get Master's Users JSON
+ router.get('/masterlist', function(req, res, next) {
+  if(req.session.user_email){
+          console.log("Get: "+req.session.user_email);
+  }
+ 
+     var results = []; 
+// Get a Postgres client from the connection pool
+     pg.connect(connectionString, function(err, client, done) {
+    // Handle connection errors
+    //console.log("\n\n** 1");
+    if(err) {
+        done();
+        console.log(err);
+        return res.status(500).json({ success: false, data: err});
+    }
+    // SQL Query > Select Data
+    var query = client.query(CHECK_USER_MASTERS,[req.session.user_email]);
+    console.log("Set the query.");
+    // Stream results back one row at a time
+    query.on('row', function(row) {
+        results.push(row);
+        });        
+    // After all data is returned, close connection and return results
+    query.on('end', function() {
+        done();
+        console.log("Results:\n"+results);    
+    return res.json(results);
+        });
+    });
+        
 });
                     
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -256,7 +305,7 @@ router.post('/login', function(req, res) {
                 if(bcrypt.compareSync(data.password, results[0].user_pass)){
                     console.log("User: "+results[0].user_email+" Authenticated");
                     req.session.user_email = results[0].user_email;
-                    res.redirect('/addmaster');
+                    res.redirect('/masterlist');
                 }else {
                     res.redirect('/login?error=true');
             }
