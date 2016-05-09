@@ -271,7 +271,9 @@ router.post('/master?', function(req, res, next) {
         }
 
         // SQL Query > User Authentication
-        var query = client.query(query_string,[req.query.master_id]);
+        var query = client.query(query_string,[req.query.master_id]);    
+        done();
+
     });
     res.status(200).json({success: true});
   }else{

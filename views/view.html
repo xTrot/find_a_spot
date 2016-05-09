@@ -54,10 +54,10 @@
 			<div >
 				<div class="login-panel panel panel-default" ng-controller="seatsController as sc">
 					<div class="panel-heading">
-						<h3 class="panel-title">Seats for "{{sc.master.name}}"</h3>
+						<h3 class="panel-title">Seats for {{sc.master.name}}</h3>
 					</div>
 					<div class="panel-body">
-                        <h4>Last updated: "{{sc.master.timestamp | date:'MMM dd, h:mm a': '+0004'}}"</h4>
+                        <h4>Last updated: {{sc.master.timestamp | date:'MMM dd, h:mm a': '+0004'}}</h4>
                         <div ng-repeat="s in sc.master.seats" >
                             <seats-content></seats-content>
                         </div>
