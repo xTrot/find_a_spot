@@ -513,7 +513,7 @@ router.post('/editmaster', checkAuth, function(req, res) {
 
     // Grab data from http request
     var data = {
-        master_id: req.query.master_id,
+        master_id: req.body.master_id,
         quantity: req.body.quantity
     };
     console.log(req.body);

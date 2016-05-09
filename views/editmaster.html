@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<title>{{title}}</title>
+
 	</head>
 	<body>
 		<div class="navbar-wrapper">
@@ -57,7 +58,8 @@
 							<p class="text-warning"></p>
 							<!--<p>Master ID (follow this format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx )</p>-->
 							<div ng-class="{ 'has-error': form.email.$invalid &amp;&amp; form.email.$dirty }" class="form-group">
-								<!--<input placeholder="Master ID " name="master_id" type="text" ng-model="regData.email" required="" class="form-control">-->
+								<input placeholder="Master ID " name="master_id" id="master_id" type="hidden" required="" class="form-control"
+								 >
 							</div>
 							<div ng-class="{ 'has-error': form.quantity.$invalid &amp;&amp; form.quantity.$dirty }" class="form-group">
 								<p>Quantity of Slaves Manage by Master</p>
@@ -90,6 +92,22 @@
 		<script src="/scripts/holder.min.js"></script>
 		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 		<script src="/scripts/ie10-viewport-bug-workaround.js"></script>
+		<script type="text/javascript">
+ 
+ 
+
+			urlParam = function(name) {
+				var param = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+				if (param == null) {
+					return null;
+				} else {
+					return param[1] || 0;
+				}
+			}   
+			//editmaster?master_id=40c0cf02-82b4-491e-8060-103a2476a83bw  
+						document.getElementById('master_id').value =urlParam("master_id");
+
+		</script>
 
 	</body>
 </html>
