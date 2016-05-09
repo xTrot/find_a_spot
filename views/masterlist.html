@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="mastersApp">
 	<head>
 		<title>{{title}}</title>
+		<script src="/angular/controllers/masterController.js">
+		<script src="/angular/directives/masterDirective.js">
 	</head>
 	<body>
 		<div class="navbar-wrapper">
@@ -52,7 +54,13 @@
 					<div class="panel-heading">
 						<h3 class="panel-title">Master List </h3>
 					</div>
-					<div class="panel-body">
+					<div class="panel-body" ng-controller="mastersController as mc">
+						<div class="list-group">
+						<a href="/editmaster?master_id={{m.master_id}}" class="list-group-item" ng-repeat="m in mc.masters" />
+							<masters-content>
+							</masters-content>
+						</a>
+						</div>
 						
 					</div>
 				</div>
@@ -64,5 +72,6 @@
 				<p>© 2015 Company, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a></p>
 			</footer>
 		</div>
+		
 	</body>
 </html>
