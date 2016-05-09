@@ -2,8 +2,9 @@
 <html ng-app="mastersApp">
 	<head>
 		<title>{{title}}</title>
-		<script src="/angular/controllers/masterController.js">
-		<script src="/angular/directives/masterDirective.js">
+
+		<script src="/angular/controllers/masterController.js"></script>
+		<script src="/angular/directives/masterContent.js"></script>
 	</head>
 	<body>
 		<div class="navbar-wrapper">
@@ -49,17 +50,17 @@
 			<h2>&nbsp;</h2>
 		</div>
 		<div class="container">
-			<div ng-controller="registerController" >
+			<div >
 				<div class="login-panel panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">Master List </h3>
 					</div>
 					<div class="panel-body" ng-controller="mastersController as mc">
 						<div class="list-group">
-						<a href="/editmaster?master_id={{m.master_id}}" class="list-group-item" ng-repeat="m in mc.masters" />
-							<masters-content>
-							</masters-content>
-						</a>
+							<div ng-repeat="m in mc.masters" />
+								<masters-content>
+								</masters-content>
+							</div>
 						</div>
 						
 					</div>

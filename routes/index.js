@@ -8,7 +8,7 @@ var connectionString = require(path.join(__dirname, '../', 'config'));
 
 //------- Athentication Function ---------
 function checkAuth(req, res, next) {
-    if (req.session.user_id) {
+    if (req.session.user_email) {
         next();
     } else {
         res.redirect('/login');
@@ -149,7 +149,8 @@ router.get('/master', function(req, res, next) {
         
             //formatting integer to boolean
             for ( i = 11; i >= 0; i--){
-            
+                    console.log(temp);
+
                 //even number % 2 = 0
                 
                 if (temp % 2 == 0){
@@ -160,7 +161,6 @@ router.get('/master', function(req, res, next) {
                 }
                 
                 temp = temp >> 1;
-        console.log(temp);
             }
             
                 json.slaves.push(bits);
@@ -228,7 +228,15 @@ router.get('/editmaster', checkAuth, function(req, res, next) {
     });
         
 });
-                    
+
+//          Get View Page
+router.get('/view', function(req, res, next) {
+  if(req.query.master_id){
+          console.log("Get:"+req.query.master_id);
+  }
+  res.render('view', { title: 'View Seats' });
+});
+                        
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //========================================================//
 //                       GETS END                         //
@@ -305,7 +313,7 @@ router.post('/login', function(req, res) {
                 if(bcrypt.compareSync(data.password, results[0].user_pass)){
                     console.log("User: "+results[0].user_email+" Authenticated");
                     req.session.user_email = results[0].user_email;
-                    res.redirect('/masterlist');
+                    res.redirect('/');
                 }else {
                     res.redirect('/login?error=true');
             }
@@ -438,7 +446,7 @@ router.post('/addmaster', checkAuth, function(req, res) {
             client.query(insert);
             console.log(insert);
         
-        res.redirect('/login');
+        res.redirect('/');
         done();
         return;
     });
@@ -572,7 +580,7 @@ router.post('/editmaster', checkAuth, function(req, res) {
             client.query(insert);
             console.log(insert);
         
-        res.redirect('/login');
+        res.redirect('/');
         done();
         return;
     }); 

@@ -1,7 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="seatsApp">
 	<head>
 		<title>{{title}}</title>
+      
+		<script src="/angular/controllers/seatController.js"></script>
+		<script src="/angular/directives/seatContent.js"></script>  
+        
 	</head>
 	<body>
 		<div class="navbar-wrapper">
@@ -47,28 +51,18 @@
 			<h2>&nbsp;</h2>
 		</div>
 		<div class="container">
-			<div ng-controller="" >
-				<div class="login-panel panel panel-default">
+			<div >
+				<div class="login-panel panel panel-default" ng-controller="seatsController as sc">
 					<div class="panel-heading">
-						<h3 class="panel-title">Needed Master Information </h3>
+						<h3 class="panel-title">Seats for "{{sc.master.name}}"</h3>
 					</div>
 					<div class="panel-body">
-						<form name="form" role="form" method="post" action="/addmaster" novalidation="">
-							<p class="text-warning"></p>
-							<p>Master ID (follow this format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx )</p>
-							<div ng-class="{ 'has-error': form.email.$invalid &amp;&amp; form.email.$dirty }" class="form-group">
-								<input placeholder="Master ID " name="master_id" type="text" ng-model="regData.email" required="" class="form-control">
-							</div>
-							<div ng-class="{ 'has-error': form.quantity.$invalid &amp;&amp; form.quantity.$dirty }" class="form-group">
-								<p>Quantity of Slaves Manage by Master</p>
-								<input placeholder="quantity" name="quantity" type="number" min="1" required="" class="form-control">
-							</div>
-							<div ng-class="{ 'has-error': form.Cquantity.$invalid &amp;&amp; form.Cquantity.$dirty }" class="form-group">
-							</div>
-							<div class="form-group">
-								<input type="submit" value="Save" class="btn btn-lg btn-info">
-							</div>
-						</form>
+                        <h4>Last updated: "{{sc.master.timestamp | date:'MMM dd, h:mm a': '+0004'}}"</h4>
+                        <div ng-repeat="s in sc.master.seats" >
+                            <seats-content></seats-content>
+                        </div>
+                        
+                    
 					</div>
 				</div>
 			</div>
